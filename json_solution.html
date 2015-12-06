@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>Video Watcher</title>
+  <link rel="stylesheet" type="text/css" href="http://teaching-materials.org/ajax/lib/bootstrap.css">
+  <style type="text/css">
+  /* This puts titles always on a separate line from thumbnails */
+  #videos-list img {
+    display: block;
+  }
+  </style>
+ </head>
+ <body>
+
+  <div class="container">
+
+   <div class="row">
+     <div class="span12">
+      <h2 class="page-header">Best Videos Ever ❤</h2>
+     </div>
+   </div>
+
+   <div class="row">
+     <div class="span3">
+       <ul id="videos-list">
+      </ul>
+     </div>
+     <div class="span9" id="video-watcher">
+     </div>
+   </div>
+  </div>
+
+   <script type="text/javascript" src="http://teaching-materials.org/ajax/lib/youtube.js"></script>
+   <script type="text/javascript" src="http://teaching-materials.org/ajax/lib/jquery.min.js"></script>
+   <script>
+   //AIzaSyBweK7eb7SRrc-vs1nVbcqFwDi8ZHOe9W0
+   // var videos = [
+   //  {"youtubeId": "TddFnTB_7IM",
+   //    "title": "Trip through the 80s",
+   //    "author": "meliberty"
+   //  },
+   //  {"youtubeId": "epUk3T2Kfno",
+   //    "title": "Otters Holding Hands",
+   //    "author": "cynthiaholmes"
+   //  },
+   //  {"youtubeId": "il2IrgFHfsg",
+   //    "title": "The Ooooh Cat",
+   //    "author": "RnBTree"
+   //  },
+   //  {"youtubeId": "oOlDewpCfZQ",
+   //    "title": "Four Chords",
+   //    "author": "axisofawesome"
+   //  }
+   // ];
+
+
+  function getVideos(query){
+    $.ajax({
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      data: {
+        key: 'AIzaSyBweK7eb7SRrc-vs1nVbcqFwDi8ZHOe9W0',
+        part: 'snippet',
+        q: query
+      },
+      dataType: 'jsonp',
+      success: function(json) {
+        var videos = json.items;
+        for(var i = 0; i < videos.length; i++) {
+           addVideoToList(videos[i]);
+        }
+      }
+
+    })
+  };
+
+
+   var addVideoToList = function(video) {
+
+      var videoLink = $('<a>');
+      videoLink.append(video.snippet.title);
+      var thumbnailUrl = youtube.generateThumbnailUrl(video.id.videoId);
+      var thumbnailImg = $('<img>');
+      thumbnailImg.attr('src', thumbnailUrl);
+      videoLink.append(thumbnailImg);
+
+      videoLink.on('click', function(e) {
+          e.preventDefault();
+
+          var videoTitle = $('<h2>');
+          videoTitle.html(video.snippet.title + ' <small>' + video.snippet.channelTitle + '</small>');
+
+          var videoEmbed = $('<iframe></iframe>');
+          videoEmbed.attr('src', youtube.generateEmbedUrl(video.id.videoId));
+          videoEmbed.attr('width', 560);
+          videoEmbed.attr('height', 315);
+
+          var videoWatcher = $('#video-watcher');
+          videoWatcher.hide();
+          videoWatcher.empty();
+          videoWatcher.append(videoTitle);
+          videoWatcher.append(videoEmbed);
+          videoWatcher.fadeIn();
+      });
+
+      var videoItem = $('<li>');
+      videoItem.append(videoLink);
+      $('#videos-list').append(videoItem);
+   };
+
+getVideos("crazy");
+   </script>
+ </body>
+</html>
+
